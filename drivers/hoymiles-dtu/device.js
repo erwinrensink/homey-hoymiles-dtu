@@ -2,6 +2,8 @@
 
 const Homey = require('homey');
 const HoymilesClient = require('../../lib/hoymiles/client');
+const HoymilesParser = require('../../lib/hoymiles/parser');
+const HoymilesModel = require('../../lib/hoymiles/model');
 
 module.exports = class HoymilesDTUDevice extends Homey.Device {
 
@@ -25,11 +27,13 @@ module.exports = class HoymilesDTUDevice extends Homey.Device {
 
     this.log(`Connecting to ${host}:${port}`);
     this.client = new HoymilesClient(host, port, unitId);
+    this.parser = new HoymilesParser();
 
     try {
       await this.client.connect();
       this.log('Connected to Hoymiles DTU');
       // await this.client.scanMicroinverters();
+      //await this.client.scanRegisters();
       await this.updateValues();  
     } catch (err) {
       this.error(err);
@@ -91,12 +95,36 @@ module.exports = class HoymilesDTUDevice extends Homey.Device {
     this.log('MyDevice has been deleted');
   }
 
-  async updateValues() {
-    const data = await this.client.readRealtimeData();
-    this.log('Realtime data:', JSON.stringify(data));
-    await this.setCapabilityValue(
-      'measure_power',
-      data.power
+async updateValues() {
+  const registers = await this.client.readRealtimeData();
+  const records = this.parser.parse(registers);
+  const model = new HoymilesModel(records);
+  this.log('==============================');
+  for (const inverter of model.getInverters()) {
+    this.log(
+      `Omvormer ${inverter.id} | ` +
+      `${inverter.inputs.length} ingangen | ` +
+      `${inverter.getPower().toFixed(1)} W`
     );
-  }  
+  }
+  this.log('==============================');
+  this.log(`Totaal vermogen: ${model.getTotalPower().toFixed(1)} W`);
+  this.log(
+    JSON.stringify(model.toJSON(), null, 2)
+  );
+  await this.updateCapabilities(model);
+}
+
+async updateCapabilities(model) {
+  const capabilities = model.getCapabilities();
+  for (const [capability, value] of Object.entries(capabilities)) {
+    if (this.hasCapability(capability)) {
+      await this.setCapabilityValue(
+        capability,
+        value
+      );
+    }
+  }
+}
+
 };

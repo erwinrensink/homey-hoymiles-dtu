@@ -3,15 +3,15 @@
     "en": "Hoymiles DTU",
     "nl": "Hoymiles DTU"
   },
-  "energy": {
-    "meterCapability": "meter_power",
-    "measureCapability": "measure_power"
-  },
-  "class": "socket",
+  "class": "solarpanel",
   "capabilities": [
     "meter_power",
     "measure_power"
   ],
+  "energy": {
+    "measurePowerProducedCapability": "measure_power",
+    "meterPowerProducedCapability": "meter_power"
+  },
   "platforms": [
     "local"
   ],

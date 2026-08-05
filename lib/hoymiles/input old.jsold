@@ -1,0 +1,123 @@
+'use strict';
+
+class HoymilesInput {
+
+  constructor(record) {
+    const {
+      id,
+      port,
+      power,
+      voltage,
+      frequency,
+      serialNumber,
+      pvVoltage,
+      pvCurrent,
+      todayEnergy,
+      totalEnergy,
+      temperature,
+      operatingStatus,
+      alarmCode,
+      linkStatus,
+      raw,
+    } = record;
+
+    this.id = id;
+    this.port = port;
+    this.power = power;
+    this.voltage = voltage;
+    this.frequency = frequency;
+    this.serialNumber = serialNumber;
+    this.pvVoltage = pvVoltage;
+    this.pvCurrent = pvCurrent;
+    this.todayEnergy = todayEnergy;
+    this.totalEnergy = totalEnergy;
+    this.temperature = temperature;
+    this.operatingStatus = operatingStatus;
+    this.alarmCode = alarmCode;
+    this.linkStatus = linkStatus;
+    this.raw = raw;
+  }
+
+  getVoltage() {
+    return this.voltage;
+  }
+
+  getFrequency() {
+    return this.frequency;
+  }
+
+  getPower() {
+    return this.power;
+  }
+
+  getPvVoltage() {
+    return this.pvVoltage;
+  }
+
+  getPvCurrent() {
+    return this.pvCurrent;
+  }
+
+  getTodayEnergy() {
+    return this.todayEnergy;
+  }
+
+  getTotalEnergy() {
+    return this.totalEnergy;
+  }
+
+  getTemperature() {
+    return this.temperature;
+  }
+
+  getOperatingStatus() {
+    return this.operatingStatus;
+  }
+
+  getAlarmCode() {
+    return this.alarmCode;
+  }
+
+  getLinkStatus() {
+    return this.linkStatus;
+  }
+
+  getSerialNumber() {
+    return this.serialNumber;
+  }
+
+  isProducing() {
+    return this.power > 5;
+  }
+
+  hasAlarm() {
+    return this.alarmCode !== 0;
+  }
+
+  isOnline() {
+    return this.linkStatus !== 0;
+  }
+
+  toJSON() {
+    return {
+      id: this.id,
+      port: this.port,
+      power: this.getPower(),
+      voltage: this.getVoltage(),
+      frequency: this.getFrequency(),
+      pvVoltage: this.getPvVoltage(),
+      pvCurrent: this.getPvCurrent(),
+      todayEnergy: this.getTodayEnergy(),
+      totalEnergy: this.getTotalEnergy(),
+      temperature: this.getTemperature(),
+      operatingStatus: this.getOperatingStatus(),
+      alarmCode: this.getAlarmCode(),
+      linkStatus: this.getLinkStatus(),
+      serialNumber: this.getSerialNumber(),
+      producing: this.isProducing(),
+    };
+  }
+
+}
+
+module.exports = HoymilesInput;

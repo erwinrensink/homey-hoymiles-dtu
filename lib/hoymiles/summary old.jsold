@@ -1,0 +1,78 @@
+'use strict';
+const REG_TODAY_ENERGY = 6;
+const REG_TOTAL_ENERGY = 2;
+
+class HoymilesSummary {
+    constructor(registers = []) {
+        this.registers = registers;
+    }
+
+    get(index) {
+        return this.registers[index] ?? 0;
+    }
+
+    get length() {
+        return this.registers.length;
+    }
+
+    toJSON() {
+        return {
+            registers: [...this.registers]
+        };
+    }
+
+    getUInt32(index) {
+        return (
+            (this.get(index) << 16) |
+            this.get(index + 1)
+        ) >>> 0;
+    }
+
+    getUInt64(index) {
+        return (
+            (BigInt(this.get(index)) << 48n) |
+            (BigInt(this.get(index + 1)) << 32n) |
+            (BigInt(this.get(index + 2)) << 16n) |
+            BigInt(this.get(index + 3))
+        );
+    }
+
+    debug() {
+        console.log('===== Installation Summary =====');
+        for (let i = 0; i < this.length; i++) {
+            console.log(
+                `R${i.toString().padStart(2, '0')} = ${this.get(i)}`
+            );
+        }
+        console.log('UInt32 waarden');
+        for (let i = 0; i < this.length - 1; i += 2) {
+            console.log(
+                `R${i}/R${i + 1} = ${this.getUInt32(i)}`
+            );
+        }
+        console.log('UInt64 waarden');
+        for (let i = 0; i < this.length - 3; i += 4) {
+            console.log(
+                `R${i}..R${i + 3} = ${this.getUInt64(i).toString()}`
+            );
+        }
+    }
+
+    getTodayEnergyWh() {
+        return this.getUInt32(REG_TODAY_ENERGY);
+    }
+
+    getTodayEnergyKWh() {
+        return this.getTodayEnergyWh() / 1000;
+    }
+
+    getTotalEnergyWh() {
+        return this.getUInt32(REG_TOTAL_ENERGY); 
+    }
+    getTotalEnergyKWh() {
+        // Afhankelijk van de DTU is dit / 1000 of / 10000. Meestal / 1000 voor kWh.
+        return this.getTotalEnergyWh() / 1000; 
+    }
+}
+
+module.exports = HoymilesSummary;

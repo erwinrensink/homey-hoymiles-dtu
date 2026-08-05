@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <!-- Achtergrond -->
+  <rect width="500" height="500" rx="100" fill="#0f172a" />
+  
+  <!-- Oranje zon -->
+  <circle cx="250" cy="220" r="120" fill="#f59e0b" />
+  
+  <!-- Uitsnede in de zon voor een modern effect -->
+  <path d="M130 220 L370 220" stroke="#0f172a" stroke-width="25" stroke-linecap="round" />
+  <path d="M250 100 L250 340" stroke="#0f172a" stroke-width="25" stroke-linecap="round" />
+  
+  <!-- Blauw netwerk/modbus bolletje -->
+  <circle cx="250" cy="380" r="20" fill="#38bdf8" />
+</svg>

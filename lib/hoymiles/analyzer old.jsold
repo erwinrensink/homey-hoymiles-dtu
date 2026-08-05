@@ -1,0 +1,43 @@
+'use strict';
+class HoymilesAnalyzer {
+    static analyze(address, registers) {
+        console.log('');
+        console.log('======================================================');
+        console.log(`Registerblok 0x${address.toString(16).toUpperCase()}`);
+        console.log('======================================================');
+
+        //
+        // 16-bit
+        //
+        console.log('\n16-bit waarden');
+        registers.forEach((value, index) => {
+            console.log(
+                `R${index.toString().padStart(2, '0')} = ${value}`
+            );
+        });
+
+        //
+        // 32-bit Big Endian
+        //
+        console.log('\n32-bit Big Endian');
+        for (let i = 0; i < registers.length - 1; i += 2) {
+            const value =
+                ((registers[i] << 16) | registers[i + 1]) >>> 0;
+            console.log(
+                `D${(i / 2).toString().padStart(2, '0')} = ${value}`
+            );
+        }
+
+        //
+        // Hex
+        //
+        console.log('\nHEX');
+        registers.forEach((value, index) => {
+            console.log(
+                `R${index.toString().padStart(2, '0')} = 0x${value.toString(16).padStart(4,'0')}`
+            );
+        });
+    }
+}
+
+module.exports = HoymilesAnalyzer;

@@ -1,0 +1,95 @@
+{
+  "triggers": [
+    {
+      "id": "power_exceeds",
+      "title": {
+        "en": "Power exceeds value",
+        "nl": "Vermogen komt boven waarde"
+      },
+      "titleFormatted": {
+        "en": "Power exceeds [[limit]] W",
+        "nl": "Vermogen komt boven [[limit]] W"
+      },
+      "args": [
+        {
+          "name": "limit",
+          "type": "number",
+          "title": {
+            "en": "Power (W)",
+            "nl": "Vermogen (W)"
+          }
+        }
+      ]
+    }
+  ],
+  "conditions": [
+    {
+      "id": "power_greater_than",
+      "title": {
+        "en": "Power is greater than",
+        "nl": "Vermogen is groter dan"
+      },
+      "titleFormatted": {
+        "en": "Power is greater than [[limit]] W",
+        "nl": "Vermogen is groter dan [[limit]] W"
+      },
+      "args": [
+        {
+          "name": "limit",
+          "type": "number",
+          "title": {
+            "en": "Power (W)",
+            "nl": "Vermogen (W)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "temperature_higher_than",
+      "title": {
+        "en": "Temperature is higher than",
+        "nl": "Temperatuur is hoger dan"
+      },
+      "titleFormatted": {
+        "en": "Temperature is higher than [[limit]] °C",
+        "nl": "Temperatuur is hoger dan [[limit]] °C"
+      },
+      "args": [
+        {
+          "name": "limit",
+          "type": "number",
+          "title": {
+            "en": "Temperature (°C)",
+            "nl": "Temperatuur (°C)"
+          }
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "set_power_limit",
+      "title": {
+        "en": "Set power limit",
+        "nl": "Zet vermogenslimiet"
+      },
+      "titleFormatted": {
+        "en": "Set power limit to [[percentage]]%",
+        "nl": "Zet vermogenslimiet op [[percentage]]%"
+      },
+      "args": [
+        {
+          "name": "percentage",
+          "type": "number",
+          "title": {
+            "en": "Limit (%)",
+            "nl": "Limiet (%)"
+          },
+          "min": 5,
+          "max": 100,
+          "units": "%"
+        }
+      ]
+    }
+  ]
+}

@@ -155,6 +155,35 @@
         "meter_power",
         "measure_power"
       ],
+      "settings": [
+        {
+          "id": "ip",
+          "type": "text",
+          "label": {
+            "en": "IP Address",
+            "nl": "IP-adres"
+          },
+          "value": "192.168.1.17"
+        },
+        {
+          "id": "port",
+          "type": "number",
+          "label": {
+            "en": "Modbus Port",
+            "nl": "Modbus-poort"
+          },
+          "value": 502
+        },
+        {
+          "id": "unitId",
+          "type": "number",
+          "label": {
+            "en": "Unit ID",
+            "nl": "Unit ID"
+          },
+          "value": 1
+        }
+      ],
       "energy": {
         "measurePowerProducedCapability": "measure_power",
         "meterPowerProducedCapability": "meter_power"
@@ -183,36 +212,7 @@
         "large": "/drivers/hoymiles-dtu/assets/images/large.png",
         "xlarge": "/drivers/hoymiles-dtu/assets/images/xlarge.png"
       },
-      "id": "hoymiles-dtu",
-      "settings": [
-        {
-          "id": "ip",
-          "type": "text",
-          "label": {
-            "en": "IP Address",
-            "nl": "IP-adres"
-          },
-          "value": "192.168.2.73"
-        },
-        {
-          "id": "port",
-          "type": "number",
-          "label": {
-            "en": "Modbus Port",
-            "nl": "Modbus-poort"
-          },
-          "value": 502
-        },
-        {
-          "id": "unitId",
-          "type": "number",
-          "label": {
-            "en": "Unit ID",
-            "nl": "Unit ID"
-          },
-          "value": 1
-        }
-      ]
+      "id": "hoymiles-dtu"
     }
   ]
 }

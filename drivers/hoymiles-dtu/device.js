@@ -3,7 +3,7 @@
 const Homey = require('homey');
 const HoymilesClient = require('../../lib/hoymiles/client');
 const HoymilesModel = require('../../lib/hoymiles/model');
-const DEFAULT_POLL_INTERVAL = 10000;
+const DEFAULT_POLL_INTERVAL = 60000;
 const SUMMARY_REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minuten
 
 module.exports = class HoymilesDTUDevice extends Homey.Device {
@@ -66,14 +66,14 @@ async onInit() {
   /**
    * onAdded is called when the user adds the device, called just after pairing.
    */
-  async onAdded() {
-    this.log('Device added');
-    await this.setSettings({
-      ip: '192.168.2.73',
-      port: 502,
-      unitId: 1,
-    });
-  }
+  //async onAdded() {
+  //  this.log('Device added');
+  //  await this.setSettings({
+  //    ip: '192.168.2.73',
+  //    port: 502,
+  //    unitId: 1,
+  //  });
+  //}
 
   /**
    * onSettings is called when the user updates the device's settings.
@@ -84,23 +84,68 @@ async onInit() {
    * @returns {Promise<string|void>} return a custom message that will be displayed
    */
 
-  async onSettings({ oldSettings, newSettings, changedKeys }) {
-    this.log('Settings gewijzigd');
-    if (
-      changedKeys.includes('ip') ||
-      changedKeys.includes('port') ||
-      changedKeys.includes('unitId')
-    ) {
-      this.stopPolling();
-      await this.client.disconnect();
-      this.client = new HoymilesClient(
-        newSettings.ip,
-        Number(newSettings.port),
-        Number(newSettings.unitId)
-      );
+onSettings({ oldSettings, newSettings, changedKeys }) {
+    this.log('Settings ontvangen, direct doorgeven...');
+    
+    // We starten direct een achtergrond-taak en geven de besturing meteen terug aan Homey.
+    // Hierdoor is het opslaan in de Homey UI 100% onmiddellijk klaar (geen time-out mogelijk).
+    this.homey.setTimeout(async () => {
+      try {
+        this.stopPolling();
+        
+        if (this.client) {
+          try {
+            if (typeof this.client.disconnect === 'function') await this.client.disconnect();
+            else if (typeof this.client.close === 'function') this.client.close();
+          } catch (e) {}
+        }
+
+        const settings = this.getSettings();
+        this.client = new HoymilesClient(
+          settings.ip,
+          Number(settings.port),
+          Number(settings.unitId)
+        );
+
+        await this.client.connect();
+        this.log('Verbonden met nieuw IP:', settings.ip);
+        
+        this.registerFlowCards();
+        await this.updateValues();
+        await this.setAvailable();
+        this.startPolling();
+      } catch (err) {
+        this.error('Fout bij toepassen nieuwe instellingen op achtergrond:', err);
+        await this.setUnavailable(`Verbindingsfout: ${err.message}`);
+      }
+    }, 10);
+
+    // Retourneer direct niets (void), zodat Homey de UI onmiddellijk opslaat
+    return Promise.resolve();
+  }
+
+  async initializeAndPoll() {
+    const settings = this.getSettings();
+    this.client = new HoymilesClient(
+      settings.ip,
+      Number(settings.port),
+      Number(settings.unitId)
+    );
+
+    try {
       await this.client.connect();
+      this.log('Succesvol verbonden met nieuwe instellingen:', settings.ip);
+      
+      this.registerFlowCards();
       await this.updateValues();
+      
+      if (!this.getAvailable()) {
+          await this.setAvailable();
+      }
       this.startPolling();
+    } catch (err) {
+      this.error('Achtergrond verbinding mislukt:', err);
+      await this.setUnavailable(`Verbindingsfout: ${err.message}`);
     }
   }
 
@@ -117,9 +162,17 @@ async onInit() {
    * onDeleted is called when the user deleted the device.
    */
   async onDeleted() {
-      this.stopPolling();
-      await this.client.disconnect();
-  }
+        this.stopPolling();
+        try {
+          if (typeof this.client.disconnect === 'function') {
+            await this.client.disconnect();
+          } else if (typeof this.client.close === 'function') {
+            await this.client.close();
+          }
+        } catch (err) {
+          this.error('Fout bij sluiten client bij verwijderen:', err);
+        }
+    }
 
 async updateValues() {
     const model = await this.readModel();
@@ -195,14 +248,27 @@ async updateValues() {
   }
 
   async updateCapabilities(model) {
-    const capabilities = model.getCapabilities();
-    for (const [capability, value] of Object.entries(capabilities)) {
-      if (!this.hasCapability(capability))
-        continue;
-      const current = this.getCapabilityValue(capability);
-      if (current === value)
-        continue;
-      await this.setCapabilityValue(capability, value);
+    const summary = model.getSummary();
+    
+    // 1. Update actueel vermogen (measure_power in Watt)
+    if (this.hasCapability('measure_power')) {
+      const currentPower = summary.power;
+      if (this.getCapabilityValue('measure_power') !== currentPower) {
+        await this.setCapabilityValue('measure_power', currentPower);
+      }
+
+      // 2. Bereken zelf de energieopbrengst in kWh als de DTU 0 geeft
+      const now = Date.now();
+      if (this.lastPollTime) {
+        const hoursPassed = (now - this.lastPollTime) / 3600000; // Milliseconden naar uren
+        const generatedKWh = (currentPower * hoursPassed) / 1000; // Wattuur naar kWh
+        
+        let totalEnergy = (this.getCapabilityValue('meter_power') || 0) + generatedKWh;
+        
+        // Optioneel: reset 's nachts of houd het bij. Hier tellen we het cumulatief op.
+        await this.setCapabilityValue('meter_power', Number(totalEnergy.toFixed(3)));
+      }
+      this.lastPollTime = now;
     }
   }
 

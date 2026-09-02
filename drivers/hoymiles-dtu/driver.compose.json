@@ -8,6 +8,35 @@
     "meter_power",
     "measure_power"
   ],
+  "settings": [
+    {
+      "id": "ip",
+      "type": "text",
+      "label": {
+        "en": "IP Address",
+        "nl": "IP-adres"
+      },
+      "value": "192.168.1.100"
+    },
+    {
+      "id": "port",
+      "type": "number",
+      "label": {
+        "en": "Port",
+        "nl": "Poort"
+      },
+      "value": 502
+    },
+    {
+      "id": "unitId",
+      "type": "number",
+      "label": {
+        "en": "Unit ID",
+        "nl": "Unit ID"
+      },
+      "value": 1
+    }
+  ],
   "energy": {
     "measurePowerProducedCapability": "measure_power",
     "meterPowerProducedCapability": "meter_power"
